@@ -1,0 +1,7 @@
+{
+	"name": "nmapx/couchbase-stubs",
+	"type": "library",
+	"description": "Pure vendor (stubs) of Couchbase PHP SDK for IDE autocompletion & hints",
+	"keywords": [ "couchbase", "php", "sdk", "stub", "vendor", "ide", "hints", "autocompletion", "syntax" ],
+	"license": "Apache-2.0"
+}
