@@ -1969,7 +1969,7 @@ namespace Couchbase {
          *  - UPSERT
          *  - DELETE
          *
-         * @param boolean $readonly true if readonly should be forced, false is the default and will use the server side default.
+         * @param bool $readonly true if readonly should be forced, false is the default and will use the server side default.
          * @return N1qlQuery
          */
         public function readonly($readonly) {}
@@ -3393,6 +3393,169 @@ namespace Couchbase {
          * @return NumericSearchFacet
          */
         public function addRange($name, $min, $max) {}
+    }
+
+    /**
+     * Base class for all FTS sort options in querying.
+     */
+    class SearchSort {
+        /** @ignore */
+        private function __construct() {}
+
+        /**
+         * Sort by the document identifier.
+         *
+         * @return SearchSortId
+         */
+        public static function id() {}
+
+        /**
+         * Sort by the hit score.
+         *
+         * @return SearchSortScore
+         */
+        public static function score() {}
+
+        /**
+         * Sort by a field in the hits.
+         *
+         * @param string $field the field name
+         *
+         * @return SearchSortField
+         */
+        public static function field($field) {}
+
+        /**
+         * Sort by geo location.
+         *
+         * @param string $field the field name
+         * @param float $longitude the longitude of the location
+         * @param float $latitude the latitude of the location
+         *
+         * @return SearchSortGeoDistance
+         */
+        public static function geoDistance($field, $longitude, $latitude) {}
+    }
+
+    /**
+     * Sort by the document identifier.
+     */
+    class SearchSortId extends SearchSort implements \JsonSerializable {
+        /** @ignore */
+        private function __construct() {}
+
+        /**
+         * Direction of the sort
+         *
+         * @param bool $descending
+         *
+         * @return SearchSortId
+         */
+        public function descending($descending) {}
+    }
+
+    /**
+     * Sort by the hit score.
+     */
+    class SearchSortScore extends SearchSort implements \JsonSerializable {
+        /** @ignore */
+        private function __construct() {}
+
+        /**
+         * Direction of the sort
+         *
+         * @param bool $descending
+         *
+         * @return SearchSortScore
+         */
+        public function descending($descending) {}
+    }
+
+    /**
+     * Sort by a field in the hits.
+     */
+    class SearchSortField extends SearchSort implements \JsonSerializable {
+        const TYPE_AUTO = "auto";
+        const TYPE_STRING = "string";
+        const TYPE_NUMBER = "number";
+        const TYPE_DATE = "date";
+
+        const MODE_DEFAULT = "default";
+        const MODE_MIN = "min";
+        const MODE_MAX = "max";
+
+        const MISSING_FIRST = "first";
+        const MISSING_LAST = "last";
+
+        /** @ignore */
+        private function __construct() {}
+
+        /**
+         * Direction of the sort
+         *
+         * @param bool $descending
+         *
+         * @return SearchSortField
+         */
+        public function descending($descending) {}
+
+        /**
+         * Set type of the field
+         *
+         * @param string type the type
+         *
+         * @see SearchSortField::TYPE_AUTO
+         * @see SearchSortField::TYPE_STRING
+         * @see SearchSortField::TYPE_NUMBER
+         * @see SearchSortField::TYPE_DATE
+         */
+        public function type($type) {}
+
+        /**
+         * Set mode of the sort
+         *
+         * @param string mode the mode
+         *
+         * @see SearchSortField::MODE_MIN
+         * @see SearchSortField::MODE_MAX
+         */
+        public function mode($mode) {}
+
+        /**
+         * Set where the hits with missing field will be inserted
+         *
+         * @param string missing strategy for hits with missing fields
+         *
+         * @see SearchSortField::MISSING_FIRST
+         * @see SearchSortField::MISSING_LAST
+         */
+        public function missing($missing) {}
+    }
+
+    /**
+     * Sort by a location and unit in the hits.
+     */
+    class SearchSortGeoDistance extends SearchSort implements \JsonSerializable {
+        /** @ignore */
+        private function __construct() {}
+
+        /**
+         * Direction of the sort
+         *
+         * @param bool $descending
+         *
+         * @return SearchSortGeoDistance
+         */
+        public function descending($descending) {}
+
+        /**
+         * Name of the units
+         *
+         * @param string $unit
+         *
+         * @return SearchSortGeoDistance
+         */
+        public function unit($unit) {}
     }
 
     /**
