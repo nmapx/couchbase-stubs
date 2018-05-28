@@ -515,9 +515,9 @@ namespace Couchbase {
      * Represents connection to the Couchbase Server
      *
      * @property int $operationTimeout
-     *   The operation timeout is the maximum amount of time the library will wait
-     *   for an operation to receive a response before invoking its callback with
-     *   a failure status.
+     *   The operation timeout (in microseconds) is the maximum amount of time the
+     *   library will wait for an operation to receive a response before invoking
+     *   its callback with a failure status.
      *
      *   An operation may timeout if:
      *
@@ -525,19 +525,20 @@ namespace Couchbase {
      *   * An updated cluster configuration has not been promptly received
      *
      * @property int $viewTimeout
-     *   The I/O timeout for HTTP requests to Couchbase Views API
+     *   The I/O timeout (in microseconds) for HTTP requests to Couchbase Views API
      *
      * @property int $n1qlTimeout
-     *   The I/O timeout for N1QL queries.
+     *   The I/O timeout (in microseconds) for N1QL queries.
      *
      * @property int $httpTimeout
-     *   The I/O timeout for HTTP queries (management API).
+     *   The I/O timeout (in microseconds) for HTTP queries (management API).
      *
      * @property int $configTimeout
-     *   How long the client will wait to obtain the initial configuration.
+     *   How long (in microseconds) the client will wait to obtain the initial
+     *   configuration.
      *
      * @property int $configNodeTimeout
-     *   Per-node configuration timeout.
+     *   Per-node configuration timeout (in microseconds).
      *
      *   This timeout sets the amount of time to wait for each node within
      *   the bootstrap/configuration process. This interval is a subset of
@@ -558,7 +559,7 @@ namespace Couchbase {
      *   timeout setting, then this value is likely optimal.
      *
      * @property int $htconfigIdleTimeout
-     *   Idling/Persistence for HTTP bootstrap
+     *   Idling/Persistence for HTTP bootstrap (in microseconds)
      *
      *   By default the behavior of the library for HTTP bootstrap is to keep
      *   the stream open at all times (opening a new stream on a different host
@@ -576,12 +577,13 @@ namespace Couchbase {
      *     the client) then a new stream is not opened.
      *
      * @property int $durabilityInterval
-     *   The time the client will wait between repeated probes to a given server.
+     *   The time (in microseconds) the client will wait between repeated probes
+     *   to a given server.
      *
      * @property int $durabilityTimeout
-     *   The time the client will spend sending repeated probes to a given key's
-     *   vBucket masters and replicas before they are deemed not to have satisfied
-     *   the durability requirements
+     *   The time (in microseconds) the client will spend sending repeated probes
+     *   to a given key's vBucket masters and replicas before they are deemed not
+     *   to have satisfied the durability requirements
      *
      * @see https://developer.couchbase.com/documentation/server/current/sdk/php/start-using-sdk.html
      *   Start Using SDK
@@ -613,6 +615,13 @@ namespace Couchbase {
          * @return int
          */
         final private function __set($name, $value) {}
+
+        /**
+         * Returns the name of the bucket for current connection
+         *
+         * @return string
+         */
+        public function getName() {}
 
         /**
          * Returns an instance of a CouchbaseBucketManager for performing management operations against a bucket.
