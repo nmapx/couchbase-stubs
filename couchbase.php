@@ -1284,6 +1284,34 @@ namespace Couchbase {
          *   SDK RFC #34, which describes the feature and report layout.
          */
         public function diag($reportId = NULL) {}
+
+        /**
+         * Encrypt fields inside specified document.
+         *
+         * @param array $document document structure
+         * @param array $options specification for fields needed to be encrypted. Where 'alg' contains
+         *   a string with alias of the registed crypto provider, and 'name' contains the name of the field.
+         * @param string $prefix optional prefix for modified field (when null, the library will use "__crypt")
+         *
+         * @return array where the fields encrypted
+         *
+         * @see https://github.com/couchbase/php-couchbase-encryption
+         */
+        public function encryptFields($document, $fieldOptions, $prefix = null) {}
+
+        /**
+         * Decrypt fields inside specified document.
+         *
+         * @param array $document document structure
+         * @param array $options specification for fields needed to be decrypted. Where 'alg' contains
+         *   a string with alias of the registed crypto provider, and 'name' contains the name of the field.
+         * @param string $prefix optional prefix for modified field (when null, the library will use "__crypt")
+         *
+         * @return array where the fields decrypted
+         *
+         * @see https://github.com/couchbase/php-couchbase-encryption
+         */
+        public function decryptFields($document, $fieldOptions, $prefix = null) {}
     }
 
     /**
@@ -1872,6 +1900,19 @@ namespace Couchbase {
          */
         const STATEMENT_PLUS = 3;
 
+        /**
+         * Disables profiling. This is the default
+         */
+        const PROFILE_NONE = 'off';
+        /**
+         * Enables phase profiling.
+         */
+        const PROFILE_PHASES = 'phases';
+        /**
+         * Enables general timing profiling.
+         */
+        const PROFILE_TIMINGS = 'timings';
+
         /** @ignore */
         final private function __construct() {}
 
@@ -1951,6 +1992,16 @@ namespace Couchbase {
          */
         public function consistency($consistency) {}
 
+        /**
+         * Controls the profiling mode used during query execution
+         *
+         * @param string $profileType
+         * @returns N1qlQuery
+         * @see \Couchbase\N1qlQuery::PROFILE_NONE
+         * @see \Couchbase\N1qlQuery::PROFILE_PHASES
+         * @see \Couchbase\N1qlQuery::PROFILE_TIMINGS
+         */
+        public function profile($profileType) {}
         /**
          * Sets mutation state the query should be consistent with
          *
