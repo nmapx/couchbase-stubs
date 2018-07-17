@@ -335,6 +335,7 @@ namespace Couchbase {
          * @see \Couchbase\Authenticator
          * @see \Couchbase\ClassicAuthenticator
          * @see \Couchbase\PasswordAuthenticator
+         * @see \Couchbase\CertAuthenticator
          */
         public function authenticate($authenticator) {}
 
@@ -1432,6 +1433,7 @@ namespace Couchbase {
      * @see \Couchbase\Cluster::authenticate()
      * @see \Couchbase\ClassicAuthenticator
      * @see \Couchbase\PasswordAuthenticator
+     * @see \Couchbase\CertAuthenticator
      */
     interface Authenticator {}
 
@@ -1490,6 +1492,18 @@ namespace Couchbase {
          * @return \Couchbase\PasswordAuthenticator
          */
         public function password($password) {}
+    }
+
+    /**
+     * Authenticator for Client Certificate authentication feature of Couchbase Server 5+.
+     *
+     * This authenticator does not have any attributes, but ensures that
+     * "certpath" and "keypath" options specified in the connection string
+     *
+     * @see \Couchbase\Cluster::authenticate()
+     * @see \Couchbase\Authenticator
+     */
+    class CertAuthenticator implements Authenticator {
     }
 
     /**
