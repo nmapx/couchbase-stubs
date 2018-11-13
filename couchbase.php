@@ -1994,6 +1994,20 @@ namespace Couchbase {
         public function namedParams($params) {}
 
         /**
+         * Specify custom parameter for query
+         *
+         * This function exists as escape hatch for cases when the Server has
+         * implemented some new query feature, while the SDK hasn't yet exposed
+         * the API on query object yet. The key must be a string, and param is
+         * JSON-serializable object.
+         *
+         * @param string $key
+         * @param mixed $param
+         * @return AnalyticsQuery
+         */
+        public function rawParam($key, $value) {}
+
+        /**
          * Specifies the consistency level for this query
          *
          * @param int $consistency consistency level
@@ -3651,6 +3665,50 @@ namespace Couchbase {
          * @example examples/api/couchbase.AnalyticsQuery.php
          */
         public static function fromString($statement) {}
+
+        /**
+         * Specify array of positional parameters
+         *
+         * Previously specified positional parameters will be replaced.
+         * Note: carefully choose type of quotes for the query string, because PHP also uses `$`
+         * (dollar sign) for variable interpolation. If you are using double quotes, make sure
+         * that N1QL parameters properly escaped.
+         *
+         * @param array $params
+         * @return AnalyticsQuery
+         *
+         * @example examples/api/couchbase.AnalyticsQuery.php
+         */
+        public function positionalParams($params) {}
+
+        /**
+         * Specify associative array of named parameters
+         *
+         * The supplied array of key/value pairs will be merged with already existing named parameters.
+         * Note: carefully choose type of quotes for the query string, because PHP also uses `$`
+         * (dollar sign) for variable interpolation. If you are using double quotes, make sure
+         * that N1QL parameters properly escaped.
+         *
+         * @param array $params
+         * @return AnalyticsQuery
+         *
+         * @example examples/api/couchbase.AnalyticsQuery.php
+         */
+        public function namedParams($params) {}
+
+        /**
+         * Specify custom parameter for query
+         *
+         * This function exists as escape hatch for cases when the Server has
+         * implemented some new query feature, while the SDK hasn't yet exposed
+         * the API on query object yet. The key must be a string, and param is
+         * JSON-serializable object.
+         *
+         * @param string $key
+         * @param mixed $param
+         * @return AnalyticsQuery
+         */
+        public function rawParam($key, $value) {}
     }
 
 }
