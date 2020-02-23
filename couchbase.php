@@ -364,6 +364,240 @@ namespace Couchbase {
     {
     }
 
+    class QueryIndex
+    {
+        public function name(): string
+        {
+        }
+
+        public function isPrimary(): bool
+        {
+        }
+
+        public function type(): string
+        {
+        }
+
+        public function state(): string
+        {
+        }
+
+        public function keyspace(): string
+        {
+        }
+
+        public function indexKey(): array
+        {
+        }
+
+        public function condition(): ?string
+        {
+        }
+    }
+
+    class CreateQueryIndexOptions
+    {
+        public function condition(string $condition): CreateQueryIndexOptions
+        {
+        }
+
+        public function ignoreIfExists(bool $shouldIgnore): CreateQueryIndexOptions
+        {
+        }
+
+        public function numReplicas(int $number): CreateQueryIndexOptions
+        {
+        }
+
+        public function deferred(bool $isDeferred): CreateQueryIndexOptions
+        {
+        }
+    }
+
+    class CreateQueryPrimaryIndexOptions
+    {
+        public function indexName(string $name): CreateQueryPrimaryIndexOptions
+        {
+        }
+
+        public function ignoreIfExists(bool $shouldIgnore): CreateQueryPrimaryIndexOptions
+        {
+        }
+
+        public function numReplicas(int $number): CreateQueryPrimaryIndexOptions
+        {
+        }
+
+        public function deferred(bool $isDeferred): CreateQueryPrimaryIndexOptions
+        {
+        }
+    }
+
+    class DropQueryIndexOptions
+    {
+        public function ignoreIfNotExists(bool $shouldIgnore): DropQueryIndexOptions
+        {
+        }
+    }
+
+    class DropQueryPrimaryIndexOptions
+    {
+        public function indexName(string $name): DropQueryPrimaryIndexOptions
+        {
+        }
+
+        public function ignoreIfNotExists(bool $shouldIgnore): DropQueryPrimaryIndexOptions
+        {
+        }
+    }
+
+    class WatchQueryIndexesOptions
+    {
+        public function watchPrimary(bool $shouldWatch): WatchQueryIndexesOptions
+        {
+        }
+    }
+
+    class QueryIndexManager
+    {
+        public function getAllIndexes(string $bucketName): array
+        {
+        }
+
+        public function createIndex(string $bucketName, string $indexName, array $fields, CreateQueryIndexOptions $options = null)
+        {
+        }
+
+        public function createPrimaryIndex(string $bucketName, CreateQueryPrimaryIndexOptions $options = null)
+        {
+        }
+
+        public function dropIndex(string $bucketName, string $indexName, DropQueryIndexOptions $options = null)
+        {
+        }
+
+        public function dropPrimaryIndex(string $bucketName, DropQueryPrimaryIndexOptions $options = null)
+        {
+        }
+
+        public function watchIndexes(string $bucketName, array $indexNames, int $timeout, WatchQueryIndexesOptions $options = null)
+        {
+        }
+
+        public function buildDeferredIndexes(string $bucketName)
+        {
+        }
+    }
+
+    class SearchIndex implements JsonSerializable
+    {
+        public function type(): string
+        {
+        }
+
+        public function uuid(): string
+        {
+        }
+
+        public function params(): array
+        {
+        }
+
+        public function sourceType(): string
+        {
+        }
+
+        public function sourceUuid(): string
+        {
+        }
+
+        public function sourceName(): string
+        {
+        }
+
+        public function sourceParams(): array
+        {
+        }
+
+        public function setType(string $type): SearchIndex
+        {
+        }
+
+        public function setUuid(string $uuid): SearchIndex
+        {
+        }
+
+        public function setParams(string $params): SearchIndex
+        {
+        }
+
+        public function setSourceType(string $type): SearchIndex
+        {
+        }
+
+        public function setSourceUuid(string $uuid): SearchIndex
+        {
+        }
+
+        public function setSourcename(string $params): SearchIndex
+        {
+        }
+
+        public function setSourceParams(string $params): SearchIndex
+        {
+        }
+    }
+
+    class SearchIndexManager
+    {
+        public function getIndex(string $name): SearchIndex
+        {
+        }
+
+        public function getAllIndexes(): array
+        {
+        }
+
+        public function upsertIndex(SearchIndex $indexDefinition)
+        {
+        }
+
+        public function dropIndex(string $name)
+        {
+        }
+
+        public function getIndexedDocumentsCount(string $indexName): int
+        {
+        }
+
+        public function pauseIngest(string $indexName)
+        {
+        }
+
+        public function resumeIngest(string $indexName)
+        {
+        }
+
+        public function allowQuerying(string $indexName)
+        {
+        }
+
+        public function disallowQuerying(string $indexName)
+        {
+        }
+
+        public function freezePlan(string $indexName)
+        {
+        }
+
+        public function unfreezePlan(string $indexName)
+        {
+        }
+
+        public function analyzeDocument(string $indexName, $document)
+        {
+        }
+    }
 
     class Cluster
     {
@@ -387,7 +621,235 @@ namespace Couchbase {
         {
         }
 
+        public function buckets(): BucketManager
+        {
+        }
+
+        public function users(): UserManager
+        {
+        }
+
         public function queryIndexes(): QueryIndexManager
+        {
+        }
+
+        public function searchIndexes(): SearchIndexManager
+        {
+        }
+    }
+
+    class Role
+    {
+        public function name(): string
+        {
+        }
+
+        public function bucket(): ?string
+        {
+        }
+
+        public function setName(string $name): Role
+        {
+        }
+
+        public function setBucket(string $bucket): Role
+        {
+        }
+    }
+
+    class RoleAndDescription
+    {
+        public function role(): Role
+        {
+        }
+
+        public function displayName(): string
+        {
+        }
+
+        public function description(): string
+        {
+        }
+    }
+
+    class Origin
+    {
+        public function type(): string
+        {
+        }
+
+        public function name(): string
+        {
+        }
+    }
+
+    class RoleAndOrigin
+    {
+        public function role(): Role
+        {
+        }
+
+        public function origins(): array
+        {
+        }
+    }
+
+    class User
+    {
+        public function username(): string
+        {
+        }
+
+        public function displayName(): string
+        {
+        }
+
+        public function groups(): array
+        {
+        }
+
+        public function roles(): array
+        {
+        }
+
+        public function setUsername(string $username): User
+        {
+        }
+
+        public function setPassword(string $password): User
+        {
+        }
+
+        public function setDisplayName(string $name): User
+        {
+        }
+
+        public function setGroups(array $groups): User
+        {
+        }
+
+        public function setRoles(array $roles): User
+        {
+        }
+    }
+
+    class Group
+    {
+        public function name(): string
+        {
+        }
+
+        public function description(): string
+        {
+        }
+
+        public function roles(): array
+        {
+        }
+
+        public function ldapGroupReference(): ?string
+        {
+        }
+
+        public function setName(string $name): Group
+        {
+        }
+
+        public function setDescription(string $description): Group
+        {
+        }
+
+        public function setRoles(array $roles): Group
+        {
+        }
+    }
+
+    class UserAndMetadata
+    {
+        public function domain(): string
+        {
+        }
+
+        public function user(): User
+        {
+        }
+
+        public function effectiveRoles(): array
+        {
+        }
+
+        public function passwordChanged(): string
+        {
+        }
+
+        public function externalGroups(): array
+        {
+        }
+    }
+
+    class GetAllUsersOptions
+    {
+        public function domainName(string $name): GetAllUsersOptions
+        {
+        }
+    }
+
+    class GetUserOptions
+    {
+        public function domainName(string $name): GetUserOptions
+        {
+        }
+    }
+
+    class DropUserOptions
+    {
+        public function domainName(string $name): DropUserOptions
+        {
+        }
+    }
+
+    class UpsertUserOptions
+    {
+        public function domainName(string $name): DropUserOptions
+        {
+        }
+    }
+
+    class UserManager
+    {
+        public function getUser(string $name, GetUserOptions $options = null): UserAndMetadata
+        {
+        }
+
+        public function getAllUsers(GetAllUsersOptions $options = null): array
+        {
+        }
+
+        public function upsertUser(User $user)
+        {
+        }
+
+        public function dropUser(string $name, DropUserOptions $options = null)
+        {
+        }
+
+        public function getRoles(): array
+        {
+        }
+
+        public function getGroup(string $name): Group
+        {
+        }
+
+        public function getAllGroups(): array
+        {
+        }
+
+        public function upsertGroup(Group $group)
+        {
+        }
+
+        public function dropGroup(string $name)
         {
         }
     }
@@ -520,12 +982,65 @@ namespace Couchbase {
         }
     }
 
-    class Bucket
+    class ScopeSpec
     {
-        final private function __construct()
+        public function name(): string
         {
         }
 
+        public function collections(): array
+        {
+        }
+    }
+
+    class CollectionSpec
+    {
+        public function name(): string
+        {
+        }
+
+        public function scopeName(): string
+        {
+        }
+
+        public function setName(string $name): CollectionSpec
+        {
+        }
+
+        public function setScopeName(string $name): CollectionSpec
+        {
+        }
+    }
+
+    class CollectionManager
+    {
+        public function getScope(string $name): ScopeSpec
+        {
+        }
+
+        public function getAllScopes(): array
+        {
+        }
+
+        public function createScope(string $name)
+        {
+        }
+
+        public function dropScope(string $name)
+        {
+        }
+
+        public function createCollection(CollectionSpec $collection)
+        {
+        }
+
+        public function dropCollection(CollectionSpec $collection)
+        {
+        }
+    }
+
+    class Bucket
+    {
         public function defaultScope(): Collection
         {
         }
@@ -546,11 +1061,15 @@ namespace Couchbase {
         {
         }
 
-        public function manager(): BucketManager
+        public function viewQuery(string $designDoc, string $viewName, ViewOptions $options = null): ViewResult
         {
         }
 
-        public function viewQuery(string $designDoc, string $viewName, ViewOptions $options = null): ViewResult
+        public function collections(): CollectionManager
+        {
+        }
+
+        public function viewIndexes(): ViewIndexManager
         {
         }
 
