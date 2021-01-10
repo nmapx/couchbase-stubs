@@ -47,6 +47,11 @@
  *   operations. All connections which idle more than this interval will be closed automatically. Cleanup function
  *   executed after each request using RSHUTDOWN hook.
  *
+ * * `couchbase.allow_fallback_to_bucket_connection` (boolean), default: `false`
+ *
+ *   allows the library to switch to bucket connection when the connection string includes bucket name. It is useful
+ *   when the application connects to older Couchbase Server, that does not have G3CP feature.
+ *
  * @package Couchbase
  */
 
@@ -244,6 +249,17 @@ namespace Couchbase {
         * @return array|null
         */
         public function content(): ?array;
+
+        /**
+         * Returns the document expiration time or null if the document does not expire.
+         *
+         * Note, that this function will return expiry only when GetOptions had withExpiry set to true.
+         *
+         * @return DateTimeInterface|null
+         */
+        public function expiryTime(): ?DateTimeInterface
+        {
+        }
     }
 
     /**
@@ -333,6 +349,17 @@ namespace Couchbase {
         * @return int
         */
         public function status(int $index): int;
+
+        /**
+         * Returns the document expiration time or null if the document does not expire.
+         *
+         * Note, that this function will return expiry only when LookupInOptions had withExpiry set to true.
+         *
+         * @return DateTimeInterface|null
+         */
+        public function expiryTime(): ?DateTimeInterface
+        {
+        }
     }
 
     /**
@@ -389,9 +416,135 @@ namespace Couchbase {
         public function rows(): ?array;
     }
 
+
     /**
-    * Interface for retrieving results from search queries.
-    */
+     * A range (or bucket) for a term search facet result.
+     * Counts the number of occurrences of a given term.
+     */
+    interface TermFacetResult
+    {
+        /**
+         * @return string
+         */
+        public function term(): string;
+
+        /**
+         * @return int
+         */
+        public function count(): int;
+    }
+
+    /**
+     * A range (or bucket) for a numeric range facet result. Counts the number of matches
+     * that fall into the named range (which can overlap with other user-defined ranges).
+     */
+    interface NumericRangeFacetResult
+    {
+        /**
+         * @return string
+         */
+        public function name(): string;
+
+        /**
+         * @return int|float|null
+         */
+        public function min();
+
+        /**
+         * @return int|float|null
+         */
+        public function max();
+
+        /**
+         * @return int
+         */
+        public function count(): int;
+    }
+
+    /**
+     * A range (or bucket) for a date range facet result. Counts the number of matches
+     * that fall into the named range (which can overlap with other user-defined ranges).
+     */
+    interface DateRangeFacetResult
+    {
+        /**
+         * @return string
+         */
+        public function name(): string;
+
+        /**
+         * @return string|null
+         */
+        public function start(): ?string;
+
+        /**
+         * @return string|null
+         */
+        public function end(): ?string;
+
+        /**
+         * @return int
+         */
+        public function count(): int;
+    }
+
+    /**
+     * Interface representing facet results.
+     *
+     * Only one method might return non-null value among terms(), numericRanges() and dateRanges().
+     */
+    interface SearchFacetResult
+    {
+        /**
+         * The field the SearchFacet was targeting.
+         *
+         * @return string
+         */
+        public function field(): string;
+
+        /**
+         * The total number of *valued* facet results. Total = other() + terms (but doesn't include * missing()).
+         *
+         * @return int
+         */
+        public function total(): int;
+
+        /**
+         * The number of results that couldn't be faceted, missing the adequate value. Not matter how many more
+         * buckets are added to the original facet, these result won't ever be included in one.
+         *
+         * @return int
+         */
+        public function missing(): int;
+
+        /**
+         * The number of results that could have been faceted (because they have a value for the facet's field) but
+         * weren't, due to not having a bucket in which they belong. Adding a bucket can result in these results being
+         * faceted.
+         *
+         * @return int
+         */
+        public function other(): int;
+
+        /**
+         * @return array of pairs string name to TermFacetResult
+         */
+        public function terms(): ?array;
+
+        /**
+         * @return array of pairs string name to NumericRangeFacetResult
+         */
+        public function numericRanges(): ?array;
+
+        /**
+         * @return array of pairs string name to DateRangeFacetResult
+         */
+        public function dateRanges(): ?array;
+    }
+
+    /**
+     * Interface for retrieving results from search queries.
+     */
     interface SearchResult
     {
         /**
@@ -404,6 +557,7 @@ namespace Couchbase {
         /**
         * Returns any facets returned by the query
         *
+        * Array contains instances of SearchFacetResult
         * @return array|null
         */
         public function facets(): ?array;
@@ -1042,6 +1196,42 @@ namespace Couchbase {
         }
     }
 
+    interface EvictionPolicy
+    {
+        /**
+         * During ejection, everything (including key, metadata, and value) will be ejected.
+         *
+         * Full Ejection reduces the memory overhead requirement, at the cost of performance.
+         *
+         * This value is only valid for buckets of type COUCHBASE.
+         */
+        public const FULL = "fullEviction";
+
+        /**
+         * During ejection, only the value will be ejected (key and metadata will remain in memory).
+         *
+         * Value Ejection needs more system memory, but provides better performance than Full Ejection.
+         *
+         * This value is only valid for buckets of type COUCHBASE.
+         */
+        public const VALUE_ONLY = "valueOnly";
+
+        /**
+         * Couchbase Server keeps all data until explicitly deleted, but will reject
+         * any new data if you reach the quota (dedicated memory) you set for your bucket.
+         *
+         * This value is only valid for buckets of type EPHEMERAL.
+         */
+        public const NO_EVICTION = "noEviction";
+
+        /**
+         * When the memory quota is reached, Couchbase Server ejects data that has not been used recently.
+         *
+         * This value is only valid for buckets of type EPHEMERAL.
+         */
+        public const NOT_RECENTLY_USED = "nruEviction";
+    }
+
     class BucketSettings
     {
         public function name(): string
@@ -1068,7 +1258,7 @@ namespace Couchbase {
         {
         }
 
-        public function ejectionMethod(): string
+        public function evictionPolicy(): string
         {
         }
 
@@ -1104,7 +1294,18 @@ namespace Couchbase {
         {
         }
 
-        public function setEjectionMethod(string $method): BucketSettings
+        /**
+         * Configures eviction policy for the bucket.
+         *
+         * @param string $policy eviction policy. Use constants FULL, VALUE_ONLY,
+         *   NO_EVICTION, NOT_RECENTLY_USED.
+         *
+         * @see \EvictionPolicy::FULL
+         * @see \EvictionPolicy::VALUE_ONLY
+         * @see \EvictionPolicy::NO_EVICTION
+         * @see \EvictionPolicy::NOT_RECENTLY_USED
+         */
+        public function setEvictionPolicy(string $policy): BucketSettings
         {
         }
 
@@ -1115,6 +1316,33 @@ namespace Couchbase {
         public function setCompressionMode(string $mode): BucketSettings
         {
         }
+
+        /**
+         * Retrieves minimal durability level configured for the bucket
+         *
+         * @see \DurabilityLevel::NONE
+         * @see \DurabilityLevel::MAJORITY
+         * @see \DurabilityLevel::MAJORITY_AND_PERSIST_TO_ACTIVE
+         * @see \DurabilityLevel::PERSIST_TO_MAJORITY
+         */
+        public function minimalDurabilityLevel(): int
+        {
+        }
+
+        /**
+         * Configures minimal durability level for the bucket
+         *
+         * @param int $durabilityLevel durability level.
+         *
+         * @see \DurabilityLevel::NONE
+         * @see \DurabilityLevel::MAJORITY
+         * @see \DurabilityLevel::MAJORITY_AND_PERSIST_TO_ACTIVE
+         * @see \DurabilityLevel::PERSIST_TO_MAJORITY
+         */
+        public function setMinimalDurabilityLevel(int $durabilityLevel): BucketSettings
+        {
+        }
+
     }
 
     class BucketManager
@@ -1150,11 +1378,27 @@ namespace Couchbase {
         {
         }
 
+        public function scope(): ?string
+        {
+        }
+
+        public function collection(): ?string
+        {
+        }
+
         public function setName(string $name): Role
         {
         }
 
         public function setBucket(string $bucket): Role
+        {
+        }
+
+        public function setScope(string $bucket): Role
+        {
+        }
+
+        public function setCollection(string $bucket): Role
         {
         }
     }
@@ -2051,7 +2295,7 @@ namespace Couchbase {
     }
 
     /**
-     * Indicates to add a value into an array at a path in a document so long as that value does not already exist 
+     * Indicates to add a value into an array at a path in a document so long as that value does not already exist
      * in the array.
      */
     class MutateArrayAddUniqueSpec implements MutateInSpec
@@ -2117,6 +2361,16 @@ namespace Couchbase {
         }
 
         /**
+         * If set to true, the server will not perform any scoring on the hits
+         *
+         * @param bool $disabled
+         * @return SearchOptions
+         */
+        public function disableScoring(bool $disabled): SearchOptions
+        {
+        }
+
+        /**
          * Sets the consistency to consider for this FTS query to AT_PLUS and
          * uses the MutationState to parameterize the consistency.
          *
@@ -2135,7 +2389,7 @@ namespace Couchbase {
          * If empty, no field values are included. This drives the inclusion of the fields in each hit.
          * Note that to be highlighted, the fields must be stored in the FTS index.
          *
-         * @param string ...$fields
+         * @param string[] $fields
          * @return SearchOptions
          */
         public function fields(array $fields): SearchOptions
@@ -2150,7 +2404,7 @@ namespace Couchbase {
          *
          * Note that to be faceted, a field's value must be stored in the FTS index.
          *
-         * @param array[SearchFacet] $facet
+         * @param SearchFacet[] $facets
          * @return SearchOptions
          *
          * @see \SearchFacet
@@ -2267,26 +2521,26 @@ namespace Couchbase {
         }
 
         /**
-         * @param SearchQuery ...$queries
+         * @param ConjunctionSearchQuery $query
          * @return BooleanSearchQuery
          */
-        public function must(SearchQuery ...$queries): BooleanSearchQuery
+        public function must(ConjunctionSearchQuery $query): BooleanSearchQuery
         {
         }
 
         /**
-         * @param SearchQuery ...$queries
+         * @param DisjunctionSearchQuery $query
          * @return BooleanSearchQuery
          */
-        public function mustNot(SearchQuery ...$queries): BooleanSearchQuery
+        public function mustNot(DisjunctionSearchQuery $query): BooleanSearchQuery
         {
         }
 
         /**
-         * @param SearchQuery ...$queries
+         * @param DisjunctionSearchQuery $query
          * @return BooleanSearchQuery
          */
-        public function should(SearchQuery ...$queries): BooleanSearchQuery
+        public function should(DisjunctionSearchQuery $query): BooleanSearchQuery
         {
         }
     }
@@ -2507,6 +2761,52 @@ namespace Couchbase {
          * @return GeoDistanceSearchQuery
          */
         public function field(string $field): GeoDistanceSearchQuery
+        {
+        }
+    }
+
+    class Coordinate implements JsonSerializable
+    {
+        /**
+         * @param float $longitude
+         * @param float $latitude
+         *
+         * @see GeoPolygonQuery
+         */
+        public function __construct(float $longitude, float $latitude)
+        {
+        }
+    }
+
+    /**
+     * A FTS query that finds all matches within the given polygon area.
+     */
+    class GeoPolygonQuery implements JsonSerializable, SearchQuery
+    {
+        public function jsonSerialize() {}
+
+        /**
+         * @param array $coordinates list of objects of type Coordinate
+         *
+         * @see Coordinate
+         */
+        public function __construct(array $coordinates)
+        {
+        }
+
+        /**
+         * @param float $boost
+         * @return GeoPolygonQuery
+         */
+        public function boost(float $boost): GeoPolygonQuery
+        {
+        }
+
+        /**
+         * @param string $field
+         * @return GeoPolygonQuery
+         */
+        public function field(string $field): GeoPolygonQuery
         {
         }
     }
@@ -3180,7 +3480,7 @@ namespace Couchbase {
         /**
          * Sets whether to cause the Get operation to only fetch the fields
          * from the document indicated by the paths provided.
-         * 
+         *
          * When used this option will transparently transform the Get
          * operation into a subdocument operation fetching only the required
          * fields.
@@ -3319,10 +3619,10 @@ namespace Couchbase {
         /**
          * Sets the expiry time for the document.
          *
-         * @param int $arg the expiry time in ms
+         * @param int|DateTimeInterface $arg the relative expiry time in seconds or DateTimeInterface object for absolute point in time
          * @return UpsertOptions
          */
-        public function expiry(int $arg): UpsertOptions
+        public function expiry(mixed $arg): UpsertOptions
         {
         }
 
@@ -3362,10 +3662,10 @@ namespace Couchbase {
         /**
          * Sets the expiry time for the document.
          *
-         * @param int $arg the expiry time in ms
+         * @param int|DateTimeInterface $arg the relative expiry time in seconds or DateTimeInterface object for absolute point in time
          * @return ReplaceOptions
          */
-        public function expiry(int $arg): ReplaceOptions
+        public function expiry(mixed $arg): UpsertOptions
         {
         }
 
@@ -3403,16 +3703,6 @@ namespace Couchbase {
         }
 
         /**
-         * Sets the expiry time for the document.
-         *
-         * @param int $arg the expiry time in ms
-         * @return AppendOptions
-         */
-        public function expiry(int $arg): AppendOptions
-        {
-        }
-
-        /**
          * Sets the durability level to enforce when writing the document.
          *
          * @param int $arg the durability level to enforce
@@ -3432,16 +3722,6 @@ namespace Couchbase {
          * @return PrependOptions
          */
         public function timeout(int $arg): PrependOptions
-        {
-        }
-
-        /**
-         * Sets the expiry time for the document.
-         *
-         * @param int $arg the expiry time in ms
-         * @return PrependOptions
-         */
-        public function expiry(int $arg): PrependOptions
         {
         }
 
@@ -3515,10 +3795,10 @@ namespace Couchbase {
         /**
          * Sets the expiry time for the document.
          *
-         * @param int $arg the expiry time in ms
+         * @param int|DateTimeInterface $arg the relative expiry time in seconds or DateTimeInterface object for absolute point in time
          * @return IncrementOptions
          */
-        public function expiry(int $arg): IncrementOptions
+        public function expiry(mixed $arg): UpsertOptions
         {
         }
 
@@ -3569,10 +3849,10 @@ namespace Couchbase {
         /**
          * Sets the expiry time for the document.
          *
-         * @param int $arg the expiry time in ms
+         * @param int|DateTimeInterface $arg the relative expiry time in seconds or DateTimeInterface object for absolute point in time
          * @return DecrementOptions
          */
-        public function expiry(int $arg): DecrementOptions
+        public function expiry(mixed $arg): UpsertOptions
         {
         }
 
@@ -3694,10 +3974,10 @@ namespace Couchbase {
         /**
          * Sets the expiry time for the document.
          *
-         * @param int $arg the expiry time in ms
+         * @param int|DateTimeInterface $arg the relative expiry time in seconds or DateTimeInterface object for absolute point in time
          * @return MutateInOptions
          */
-        public function expiry(int $arg): MutateInOptions
+        public function expiry(mixed $arg): UpsertOptions
         {
         }
 
@@ -3723,7 +4003,7 @@ namespace Couchbase {
     }
 
     /**
-     * An object which contains how to define the document level action to take 
+     * An object which contains how to define the document level action to take
      * during a MutateIn operation.
      */
     interface StoreSemantics
@@ -3905,6 +4185,16 @@ namespace Couchbase {
          * @return QueryOptions
          */
         public function readonly(bool $arg): QueryOptions
+        {
+        }
+
+        /**
+         * Sets whether or not this query allowed to use FlexIndex (full text search integration).
+         *
+         * @param bool $arg whether the FlexIndex allowed
+         * @return QueryOptions
+         */
+        public function flexIndex(bool $arg): QueryOptions
         {
         }
 

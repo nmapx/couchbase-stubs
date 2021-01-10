@@ -22,6 +22,6 @@ composer require --dev nmapx/couchbase-stubs
 
 ## License
 
-Copyright 2016-2020 Couchbase Inc.
+Copyright 2016-2021 Couchbase Inc.
 
 See full license [here](./LICENSE).
