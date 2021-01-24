@@ -721,7 +721,7 @@ namespace Couchbase {
     /**
     *  Occurs when the requested document could not be found.
     */
-    class KeyNotFoundException extends KeyValueException implements Throwable
+    class DocumentNotFoundException extends KeyValueException implements Throwable
     {
     }
 
@@ -1882,6 +1882,18 @@ namespace Couchbase {
         public function collection(string $name): Collection
         {
         }
+
+        /**
+         * Executes a N1QL query against the cluster with scopeName set implicitly.
+         *
+         * @param string $statement the N1QL query statement to execute
+         * @param QueryOptions $options the options to use when executing the query
+         * @return QueryResult
+         */
+        public function query(string $statement, QueryOptions $options = null): QueryResult
+        {
+        }
+
     }
 
     class ScopeSpec
@@ -3491,6 +3503,17 @@ namespace Couchbase {
         public function project(array $arg): GetOptions
         {
         }
+
+        /**
+         * Associate custom transcoder with the request.
+         *
+         * @param callable $arg decoding function with signature (returns decoded value):
+         *
+         *   `function decoder(string $bytes, int $flags, int $datatype): mixed`
+         */
+        public function decoder(callable $arg): GetOptions
+        {
+        }
     }
 
     class GetAndTouchOptions
@@ -3502,6 +3525,17 @@ namespace Couchbase {
          * @return GetAndTouchOptions
          */
         public function timeout(int $arg): GetAndTouchOptions
+        {
+        }
+
+        /**
+         * Associate custom transcoder with the request.
+         *
+         * @param callable $arg decoding function with signature (returns decoded value):
+         *
+         *   `function decoder(string $bytes, int $flags, int $datatype): mixed`
+         */
+        public function decoder(callable $arg): GetAndTouchOptions
         {
         }
     }
@@ -3517,6 +3551,17 @@ namespace Couchbase {
         public function timeout(int $arg): GetAndLockOptions
         {
         }
+
+        /**
+         * Associate custom transcoder with the request.
+         *
+         * @param callable $arg decoding function with signature (returns decoded value):
+         *
+         *   `function decoder(string $bytes, int $flags, int $datatype): mixed`
+         */
+        public function decoder(callable $arg): GetAndLockOptions
+        {
+        }
     }
 
     class GetAllReplicasOptions
@@ -3530,6 +3575,17 @@ namespace Couchbase {
         public function timeout(int $arg): GetAllReplicasOptions
         {
         }
+
+        /**
+         * Associate custom transcoder with the request.
+         *
+         * @param callable $arg decoding function with signature (returns decoded value):
+         *
+         *   `function decoder(string $bytes, int $flags, int $datatype): mixed`
+         */
+        public function decoder(callable $arg): GetAllRepliacasOptions
+        {
+        }
     }
 
     class GetAnyReplicaOptions
@@ -3541,6 +3597,17 @@ namespace Couchbase {
          * @return GetAnyReplicaOptions
          */
         public function timeout(int $arg): GetAnyReplicaOptions
+        {
+        }
+
+        /**
+         * Associate custom transcoder with the request.
+         *
+         * @param callable $arg decoding function with signature (returns decoded value):
+         *
+         *   `function decoder(string $bytes, int $flags, int $datatype): mixed`
+         */
+        public function decoder(callable $arg): GetAnyReplicaOptions
         {
         }
     }
@@ -3602,6 +3669,17 @@ namespace Couchbase {
         public function durabilityLevel(int $arg): InsertOptions
         {
         }
+
+        /**
+         * Associate custom transcoder with the request.
+         *
+         * @param callable $arg encoding function with signature (returns tuple of bytes, flags and datatype):
+         *
+         *   `function encoder($value): [string $bytes, int $flags, int $datatype]`
+         */
+        public function encoder(callable $arg): InsertOptions
+        {
+        }
     }
 
     class UpsertOptions
@@ -3645,6 +3723,17 @@ namespace Couchbase {
         public function durabilityLevel(int $arg): UpsertOptions
         {
         }
+
+        /**
+         * Associate custom transcoder with the request.
+         *
+         * @param callable $arg encoding function with signature (returns tuple of bytes, flags and datatype):
+         *
+         *   `function encoder($value): [string $bytes, int $flags, int $datatype]`
+         */
+        public function encoder(callable $arg): UpsertOptions
+        {
+        }
     }
 
     class ReplaceOptions
@@ -3686,6 +3775,17 @@ namespace Couchbase {
          * @return ReplaceOptions
          */
         public function durabilityLevel(int $arg): ReplaceOptions
+        {
+        }
+
+        /**
+         * Associate custom transcoder with the request.
+         *
+         * @param callable $arg encoding function with signature (returns tuple of bytes, flags and datatype):
+         *
+         *   `function encoder($value): [string $bytes, int $flags, int $datatype]`
+         */
+        public function encoder(callable $arg): ReplaceOptions
         {
         }
     }
@@ -4256,6 +4356,28 @@ namespace Couchbase {
          * @return QueryOptions
          */
         public function metrics(bool $arg): QueryOptions
+        {
+        }
+
+        /**
+         * Associate scope name with query
+         *
+         * @param string $arg the name of the scope
+         * @return QueryOptions
+         */
+        public function scopeName(string $arg): QueryOptions
+        {
+        }
+
+        /**
+         * Associate scope qualifier (also known as `query_context`) with the query.
+         *
+         * The qualifier must be in form `${bucketName}.${scopeName}` or `default:${bucketName}.${scopeName}`
+         *
+         * @param string $arg the scope qualifier
+         * @return QueryOptions
+         */
+        public function scopeQualifier(string $arg): QueryOptions
         {
         }
     }
